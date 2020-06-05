@@ -1,3 +1,8 @@
+''' Functions for loading the Genius data into memory.
+
+    Any default arguments are set to the arguments that are 
+    used for the analysis in the paper.
+'''
 from constants import DATAPATH
 import json
 import csv
@@ -32,21 +37,28 @@ def load_graph(positive_iq=True):
         G = G.subgraph((u['url_name'] for u in user_info if u['iq'] > 0))
     return user_info, G
 
-def load_artists():
+def load_artists(del_songs=True):
+    ''' Loads artist info from artist_info.jl.
+
+        If del_songs, then delete the songs list.
+    '''
     with open(f"{DATAPATH}/artist_info.jl", 'r') as f:
         artist_info = [json.loads(line) for line in f.readlines()]
-        for a in artist_info:
-            del a['songs']
+        if del_songs:
+            for a in artist_info:
+                del a['songs']
     return artist_info
 
 def load_song_info():
+    ''' Loads song information.'''
     with open(f'{DATAPATH}/song_info.jl', 'r') as f:
         song_info = f.readlines()
         song_info = list(map(json.loads, song_info))
     return song_info
 
 def load_annotation_info(reviewed=True):
-    '''
+    ''' Loads annotation information.
+
         If reviewed, then only return reviewed annotations.
     '''
     annotation_info = []
@@ -58,6 +70,7 @@ def load_annotation_info(reviewed=True):
     return annotation_info
 
 def load_lyrics_info():
+    ''' Loads lyrics information. '''
     lyrics_info = []
     with open(f'{DATAPATH}/lyrics.jl', 'r') as f:
         for line in f:
