@@ -1,7 +1,7 @@
 ''' Functions for loading the Genius data into memory.
 
-    Any default arguments are set to the arguments that are 
-    used for the analysis in the paper.
+Any default arguments are set to the arguments that are 
+used for the analysis in the paper.
 '''
 from constants import DATAPATH
 import json
@@ -11,7 +11,7 @@ import networkx as nx
 def load_graph(positive_iq=True):
     """ Loads directed user graph.
 
-        If positive_iq, then only returns subgraph with users of positive iq.
+    If positive_iq, then only returns subgraph with users of positive iq.
     """
     map_artist_names = {}
     with open(f'{DATAPATH}/map_artist_names.csv', 'r') as f:
@@ -40,7 +40,7 @@ def load_graph(positive_iq=True):
 def load_artists(del_songs=True):
     ''' Loads artist info from artist_info.jl.
 
-        If del_songs, then delete the songs list.
+    If del_songs, then delete the songs list.
     '''
     with open(f"{DATAPATH}/artist_info.jl", 'r') as f:
         artist_info = [json.loads(line) for line in f.readlines()]
@@ -59,7 +59,7 @@ def load_song_info():
 def load_annotation_info(reviewed=True):
     ''' Loads annotation information.
 
-        If reviewed, then only return reviewed annotations.
+    If reviewed, then only return reviewed annotations.
     '''
     annotation_info = []
     with open(f"{DATAPATH}/annotation_info.jl", 'r') as f:
