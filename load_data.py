@@ -7,6 +7,14 @@ from constants import DATAPATH
 import json
 import csv
 import networkx as nx
+import collections
+from helpers import *
+
+def user_info_gen():
+    with open(f"{DATAPATH}/user_info.jl", 'r') as f:
+        user_info = f.readlines()
+    return map(json.loads, user_info)
+
         
 def load_graph(positive_iq=True):
     """ Loads directed user graph.
@@ -19,11 +27,8 @@ def load_graph(positive_iq=True):
         for row in reader:
             map_artist_names[row[0]] = row[1]
 
-    with open(f"{DATAPATH}/user_info.jl", 'r') as f:
-        user_info = f.readlines()
-    user_info = list(map(json.loads, user_info))
     G = nx.DiGraph()
-    G.add_nodes_from(map(lambda u: u["url_name"], user_info))
+    G.add_nodes_from(map(lambda u: u["url_name"], user_info_gen()))
     
     with open(f"{DATAPATH}/follows.csv", 'r') as f:
         reader = csv.reader(f)
@@ -34,30 +39,20 @@ def load_graph(positive_iq=True):
                 row[1] = map_artist_names[row[1]]
             if row[0] != row[1]: G.add_edge(row[0], row[1])
     if positive_iq:
-        G = G.subgraph((u['url_name'] for u in user_info if u['iq'] > 0))
-    return user_info, G
+        G = G.subgraph((u['url_name'] for u in user_info_gen() if u['iq'] > 0))
+    return G
 
-def load_artists(del_songs=True):
-    ''' Loads artist info from artist_info.jl.
 
-    If del_songs, then delete the songs list.
-    '''
-    with open(f"{DATAPATH}/artist_info.jl", 'r') as f:
-        artist_info = [json.loads(line) for line in f.readlines()]
-        if del_songs:
-            for a in artist_info:
-                del a['songs']
-    return artist_info
-
-def load_song_info():
+def song_info_gen():
     ''' Loads song information.'''
     with open(f'{DATAPATH}/song_info.jl', 'r') as f:
         song_info = f.readlines()
-        song_info = list(map(json.loads, song_info))
+        song_info = map(json.loads, song_info)
     return song_info
 
+
 def load_annotation_info(reviewed=True):
-    ''' Loads annotation information.
+    '''loads annotation information.
 
     If reviewed, then only return reviewed annotations.
     '''
@@ -69,10 +64,22 @@ def load_annotation_info(reviewed=True):
                 annotation_info.append(j)
     return annotation_info
 
-def load_lyrics_info():
-    ''' Loads lyrics information. '''
-    lyrics_info = []
+def lyrics_info_gen():
+    '''lyrics information generator.'''
     with open(f'{DATAPATH}/lyrics.jl', 'r') as f:
-        for line in f:
-            lyrics_info.append(json.loads(line))
-    return lyrics_info
+        lyrics_info = f.readlines()
+    return map(json.loads, lyrics_info)
+
+def load_artists(del_songs=True):
+    ''' Loads artist info from artist_info.jl.
+
+    If del_songs, then delete the songs lists.
+    This method is not used in our main code.
+    '''
+    with open(f"{DATAPATH}/artist_info.jl", 'r') as f:
+        artist_info = [json.loads(line) for line in f.readlines()]
+        if del_songs:
+            for a in artist_info:
+                del a['songs']
+    return artist_info
+

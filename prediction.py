@@ -9,6 +9,7 @@ import scipy.stats as stats
 from load_data import *
 from helpers import *
 from constants import *
+from process_lyrics import *
 
 
 def qtile_labels(users, bot_qtile, top_qtile):
@@ -20,7 +21,7 @@ def qtile_labels(users, bot_qtile, top_qtile):
     and Y[k]=0 if user is at most bot_qtile IQ quantile.
     """
     Y = []
-    user_to_iq = {u['url_name']:u['iq'] for u in user_info}
+    user_to_iq = {u['url_name']:u['iq'] for u in user_info_gen()}
     user_iqs = [user_to_iq[u] for u in users]
     top_bound = np.quantile(user_iqs, top_qtile)
     bot_bound = np.quantile(user_iqs, bot_qtile)
@@ -47,7 +48,7 @@ def make_top_users(min_annots=30, min_edits=30,
     """
     ann_count = collections.Counter()
     edit_counts = collections.Counter()
-    user_to_iq = {u['url_name']:u['iq'] for u in user_info}
+    user_to_iq = {u['url_name']:u['iq'] for u in user_info_gen()}
     for a in annotation_info:
         if a['type'] == 'reviewed':
             user = a['edits_lst'][-1]['name'].split('/')[-1]
@@ -76,13 +77,16 @@ def make_top_users(min_annots=30, min_edits=30,
         
     return top_users, Y, lab_users
 
-def data_matrix(lab_users, max_annots=15, max_a_edits=15, song_to_score=None):
+def data_matrix(lab_users, max_annots=15, max_a_edits=15, song_to_score=None, compute_score=True):
     """ Builds matrix of user data for prediction.
     
     lab_users is filtered so only labeled ones left
     song_to_score is a dictionary mapping song names
     to song novelty scores.
     """
+    if compute_score:
+        song_to_lyrics, _ = make_song_to_lyrics(annotation_info)
+        song_to_score = compute_song_to_score(song_to_lyrics)
     n = len(lab_users)
     X = [[] for _ in range(n)]
     # user to annotation indices
@@ -229,7 +233,6 @@ def clf_results(X, Y, clf, num_trials=1000, prop_train=.75):
 if __name__ == '__main__':
     # Load data
     print('~~~Loading data~~~')
-    user_info, _ = load_graph()
     annotation_info = load_annotation_info()
 
     # Label users

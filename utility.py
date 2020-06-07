@@ -15,7 +15,7 @@ def make_user_to_prop_times(min_user_anns=10, min_anns=5):
     user_to_ann_idx = make_user_to_ann_idx(annotation_info)
     song_to_ann_idx = make_song_to_ann_idx(annotation_info)
     ann_idx_to_prop_time = {}
-    user_to_iq = {u['url_name']:u['iq'] for u in user_info}
+    user_to_iq = {u['url_name']:u['iq'] for u in user_info_gen()}
     xs, ys = collections.defaultdict(list), collections.defaultdict(list)
     for s in song_to_ann_idx:
         num_anns = len(song_to_ann_idx[s])
@@ -121,7 +121,6 @@ def utility_model(user_to_prop_times, user_to_utype):
 if __name__ == '__main__':
     # Load data
     print('~~~Load data~~~')
-    user_info, _ = load_graph()
     annotation_info = load_annotation_info()
 
     # Precompute dictionaries from user to annotation prop times
@@ -133,10 +132,13 @@ if __name__ == '__main__':
     # Utility model
     print('~~~Fit utility model~~~')
     probs = utility_model(user_to_prop_times, user_to_utype)
-    plt.savefig(f'{FIGPATH}/figure7.pdf')
+    namestr = f'{FIGPATH}/figure7.pdf'
     parameters = ('b', 'a1', 'a2', 'c1', 'c2')
     for utype in ('high iq', 'low iq'):
         print(f'~~~{utype}~~~')
         sol = probs[utype]
         for p in parameters:
             print(p, sol[p])
+
+    plt.savefig(namestr)
+    print(f'Saved to {namestr}')
