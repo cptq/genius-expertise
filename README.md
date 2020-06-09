@@ -1,4 +1,4 @@
-Code to analyze a dataset of [genius.com](genius.com), as used in the paper:
+Code to analyze a dataset of [genius.com](https://genius.com), as used in the paper:
 > Derek Lim, Austin Benson. "Expertise and Dynamics within Crowdsourced Musical Knowledge Curation: A Case Study of the Genius Platform." 2020.
 
 ### Data and Requirements
