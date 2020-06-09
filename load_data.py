@@ -34,14 +34,12 @@ def load_graph(positive_iq=True):
         reader = csv.reader(f)
         next(reader)
         for row in reader:
-            row[1] = row[1][1:]
             if row[1] in map_artist_names:
                 row[1] = map_artist_names[row[1]]
             if row[0] != row[1]: G.add_edge(row[0], row[1])
     if positive_iq:
         G = G.subgraph((u['url_name'] for u in user_info_gen() if u['iq'] > 0))
     return G
-
 
 def song_info_gen():
     ''' Loads song information.'''

@@ -65,3 +65,21 @@ def compute_song_to_score(song_to_lyrics):
             score = 0
         song_to_score[s] = score
     return song_to_score
+
+def covered_stat(song, song_to_lyrics, song_to_ann_lyrics):
+    """ computes coverage of song lyrics by annotations
+    
+    'song' parameter is the song name
+    """
+    if song not in song_to_ann_lyrics or song not in song_to_lyrics:
+        return 0
+    lyric_lst = song_to_ann_lyrics[song]
+    lyrics = song_to_lyrics[song]
+    lyrics = proc_lyrics(lyrics)
+    prev_len = len(lyrics)
+    if prev_len == 0:
+        return 0
+    for t in lyric_lst:
+        lyrics = lyrics.replace(t, '')
+    covered_val = 1-len(lyrics)/prev_len
+    return covered_val
