@@ -121,7 +121,72 @@ def figure3():
     plt.savefig(namestr)
     print(f'Saved to {namestr}')
 
-    
+def figure4():
+    def text_coverage_over_views(ax, ts, end_ct=5):
+        """song coverage against views, split by lyric originality
+        """
+        song_to_lyrics, song_to_ann_lyrics = make_song_to_lyrics(annotation_info)
+        song_to_score = compute_song_to_score(song_to_lyrics)
+        song_to_views = {s['url_name']:s['views'] for s in song_info_gen()}
+        ret = collections.defaultdict(list)
+        stypes = ('high', 'low')
+        highpercent = 2/3
+        lowpercent = 1/3
+        high_cut = np.quantile(list(song_to_score.values()),highpercent)
+        low_cut = np.quantile(list(song_to_score.values()),lowpercent)
+        song_to_stype = {}
+        ctr = collections.Counter()
+        curr_highers = collections.defaultdict(set)
+        k = 0
+        for i, s in enumerate(song_to_lyrics):
+            coverage = covered_stat(s, song_to_lyrics, song_to_ann_lyrics)
+            views = song_to_views.get(s,0)
+            if views:
+                score = song_to_score[s]
+                if score >= high_cut:
+                    stype = stypes[0]
+                    ctr[0] += 1
+                elif score <= low_cut:
+                    stype = stypes[1]
+                    ctr[1] += 1
+                else:
+                    continue
+                song_to_stype[s] = stype
+                curr_highers[stype].add((views, coverage, k))
+                k += 1
+        for i, t in enumerate(ts[1:]):
+            for stype in stypes:
+                tot = len(curr_highers[stype])
+                if tot >= end_ct:
+                    coverages = [trip[1] for trip in curr_highers[stype]]
+                    tot_coverages = sum(coverages)
+                    ret[stype].append(tot_coverages/tot) # mean
+                    curr_highers[stype] = [trip for trip in curr_highers[stype] if trip[0] >= t]
+        for stype in stypes:
+            data = ret[stype]
+            plt.plot(ts[:len(data)], data, linewidth=1.5)
+        plt.legend(['high originality', 'low originality'], fontsize='small', 
+                   loc='upper left', fancybox=False, framealpha=1,
+                      edgecolor='k', facecolor='oldlace')
+        
+    one_col()
+    lower = 5000
+    upper = 5*10**6
+    ts = range(lower, upper, 5000)
+    fig, ax = plt.subplots(1,figsize=(2,1.3))
+    ax.set_prop_cycle('color', CYCLE_COLORS)
+    text_coverage_over_views(ax, ts, end_ct=10)
+    plt.xscale('log')
+    plt.xlim(lower, upper)
+    plt.ylim(.25, .82)
+    plt.xlabel('Minimum views')
+    plt.ylabel('Coverage')
+    plt.yticks([.3, .4, .5, .6, .7, .8])
+    plt.grid()
+    plt.tight_layout(pad=0)
+    plt.minorticks_off()
+    plt.savefig(f'{FIGPATH}/figure4.pdf')
+        
 
 def figure5a():
     def prop_ann_time_rank_to_user_stat(stat, min_annots=10, max_annots=100):
@@ -167,6 +232,46 @@ def figure5a():
         plt.savefig(namestr)
         print(f'Saved to {namestr}')
 
+def figure5b():
+    def prop_annotation_time_rank_to_quality(ptype, min_annots=10, max_annots=100):
+        song_to_annot_idx = collections.defaultdict(list)
+        x, y = [], []
+        for i, a in enumerate(annotation_info):
+            if a['type'] == 'reviewed':
+                song_name = a['song']
+                song_to_annot_idx[song_name].append(i)
+        for s, idx_lst in song_to_annot_idx.items():
+            if min_annots <= len(idx_lst) <= max_annots:
+                sorted_idx = sorted(idx_lst, 
+                                    key=lambda i: 
+                                    to_dt_a(annotation_info[i]['time']).timestamp())
+                for time_rank, i in enumerate(sorted_idx):
+                    a = annotation_info[i]
+                    annot = a['edits_lst'][-1]
+                    content = annot['content']
+                    if ptype == 'Quality Tags':
+                        quality = num_quality_tags(content, quality_tags)
+                    elif ptype == 'Length':
+                        quality = len(BeautifulSoup(content).get_text())
+                    x.append(time_rank/(len(idx_lst)-1))
+                    y.append(quality)
+       
+        x, y = make_cont_bins(x, y, num_bins=15)
+        y = [np.mean(b) for b in y]
+        plt.plot(x, y, '-o', color=PRED)
+        plt.xlabel('q')
+        plt.ylabel(ptype)
+    two_col()
+    count = 0
+    for ptype in ('Quality Tags', 'Length'):
+        plt.figure()
+        prop_annotation_time_rank_to_quality(ptype, min_annots=10, max_annots=100)
+        plt.tight_layout(pad=0)
+        namestr = f'{FIGPATH}/figure5-1-{count}.pdf'
+        plt.savefig(namestr)
+        print(f'Saved to {namestr}')
+        count += 1
+
 def figure8a():
     def split_editnum_vs_stat(stat, most_edits=10):
         """edit time rank vs stat
@@ -209,6 +314,38 @@ def figure8a():
         split_editnum_vs_stat(stat, most_edits=10)
         plt.tight_layout(pad=0)
         namestr = f"{FIGPATH}/figure8-0-{count}.pdf"
+        plt.savefig(namestr)
+        print(f'Saved to {namestr}')
+
+def figure8b():
+    def editnum_vs_quality(ptype, most_edits=10):
+        edit_bins = [[[] for _ in range(k)] for k in range(1,most_edits+1)]
+        data = []
+        for a in annotation_info:
+            if a['type'] == 'reviewed':
+                edits_lst = a['edits_lst']
+                edit_num = len(edits_lst)
+                if edit_num <= most_edits:
+                    for i, edit in enumerate(
+                        list(reversed(edits_lst))[:edit_num]):
+                        content = edit['content']
+                        if ptype == 'Quality Tags':
+                            quality = num_quality_tags(content, quality_tags)
+                        if ptype == 'Length':
+                            quality = len(BeautifulSoup(content).get_text())
+                        edit_bins[edit_num-1][i].append(quality)
+        for edit_num in range(most_edits):
+            y = [np.mean(b) for b in edit_bins[edit_num]]
+            plt.plot(range(1, edit_num+2), y, 'o-')
+        plt.xlabel('R')
+        plt.ylabel(ptype)
+        plt.xticks(range(1, most_edits+1))
+    two_col()
+    for count, ptype in enumerate(('Quality Tags', 'Length')):
+        plt.figure()
+        editnum_vs_quality(ptype, most_edits=10)
+        plt.tight_layout(pad=0)
+        namestr = f'{FIGPATH}/figure8-{count}.pdf'
         plt.savefig(namestr)
         print(f'Saved to {namestr}')
 
@@ -262,7 +399,7 @@ if __name__ == '__main__':
     parser.add_argument('--figure', type=int, default=-1)
     args = parser.parse_args()
 
-    valid_figures = (2,3,5,8,10)
+    valid_figures = (2,3,4,5,8,10)
     print(f'Valid figures are: {valid_figures}')
     if args.figure in valid_figures:
         print('~~~Loading data~~~')
@@ -272,10 +409,14 @@ if __name__ == '__main__':
         figure2()
     elif args.figure == 3:
         figure3()
+    elif args.figure == 4:
+        figure4()
     elif args.figure == 5:
         figure5a()
+        figure5b()
     elif args.figure == 8:
         figure8a()
+        figure8b()
     elif args.figure == 10:
         figure10()
     else:
