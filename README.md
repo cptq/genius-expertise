@@ -2,7 +2,7 @@ Code for analysis of a [genius.com](https://genius.com) dataset, as used in the 
 > Derek Lim, Austin Benson. "Expertise and Dynamics within Crowdsourced Musical Knowledge Curation: A Case Study of the Genius Platform." 2020.
 
 ### Data and Requirements
-The data can be found at **link**. It must be placed in the `DATAPATH` folder specified in `constants.py`, which by default is `data/`. The data can be loaded with the methods in `load_data.py`. These methods tend to use generators, but the graph `G` (~2GB) and `annotation_info` (~3GB) are currently loaded directly into memory when they are needed (the graph is only used for Figure 10).
+The data can be found at (**link to be provided**). It must be placed in the `DATAPATH` folder specified in `constants.py`, which by default is `data/`. The data can be loaded with the methods in `load_data.py`. These methods tend to use generators, but the graph `G` (~2GB) and `annotation_info` (~3GB) are currently loaded directly into memory when they are needed (the graph is only used for Figure 10).
 
 Required python3 dependencies for running the code can be found in `requirements.py`
 
