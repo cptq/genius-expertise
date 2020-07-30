@@ -1,5 +1,6 @@
 Code for analysis of a [genius.com](https://genius.com) dataset, as used in the paper:
 > Derek Lim, Austin Benson. "Expertise and Dynamics within Crowdsourced Musical Knowledge Curation: A Case Study of the Genius Platform." 2020.
+
 The paper is available as [arxiv:2006.08108](https://arxiv.org/abs/2006.08108).
 
 ### Data and Requirements
