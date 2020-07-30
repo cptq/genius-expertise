@@ -1,5 +1,6 @@
 Code for analysis of a [genius.com](https://genius.com) dataset, as used in the paper:
 > Derek Lim, Austin Benson. "Expertise and Dynamics within Crowdsourced Musical Knowledge Curation: A Case Study of the Genius Platform." 2020.
+The paper is available as [arxiv:2006.08108](https://arxiv.org/abs/2006.08108).
 
 ### Data and Requirements
 The data can be found [here](https://www.cs.cornell.edu/~arb/data/genius-expertise/). It must be placed in the `DATAPATH` folder specified in `constants.py`, which by default is `data/`. The data can be loaded with the methods in `load_data.py`. These methods tend to use generators, but the graph `G` (~2GB) and `annotation_info` (~3GB) are currently loaded directly into memory when they are needed (the graph is only used for Figure 10).
