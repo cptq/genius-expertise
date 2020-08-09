@@ -214,7 +214,7 @@ def figure5a():
         x, y = make_cont_bins(x, y, num_bins=19)
         y = [np.mean(b) for b in y]
         plt.plot(x, y, '-o', color=PRED)
-        plt.xlabel('q')
+        plt.xlabel('Prop. time rank (q)')
         plt.ylabel(stat)
         plt.xticks([0, .5, 1])
         if stat == 'iq':
@@ -227,8 +227,8 @@ def figure5a():
         plt.figure()
         prop_ann_time_rank_to_user_stat(stat, min_annots=10, max_annots=100)
         plt.tight_layout(pad=0)
-        count += 1
         namestr = f'{FIGPATH}/figure5-0-{count}.pdf'
+        count += 1
         plt.savefig(namestr)
         print(f'Saved to {namestr}')
 
@@ -259,7 +259,7 @@ def figure5b():
         x, y = make_cont_bins(x, y, num_bins=15)
         y = [np.mean(b) for b in y]
         plt.plot(x, y, '-o', color=PRED)
-        plt.xlabel('q')
+        plt.xlabel('Prop. time rank (q)')
         plt.ylabel(ptype)
     two_col()
     count = 0
@@ -288,7 +288,7 @@ def figure6():
             idx_lst = song_to_annot_idx[s]
             if len(idx_lst) >= min_annots:
                 content_lst = [BeautifulSoup(
-                    annotation_info[i]['edits_lst'][-1]['content']).get_text()
+                    annotation_info[i]['edits_lst'][-1]['content'], 'lxml').get_text()
                               for i in idx_lst ]
                 score_matrix = vectorizer.transform(content_lst)
                 for tr, i in enumerate(idx_lst):
@@ -308,11 +308,13 @@ def figure6():
     xb, yb = make_cont_bins(x, y, num_bins=15)
     yb = [np.mean(b) for b in yb]
     plt.plot(xb, yb, '-o', color=PRED)
-    plt.xlabel('q')
+    plt.xlabel('Prop. time rank (q)')
     plt.ylabel('Originality')
     plt.yticks([4.9, 4.95, 5, 5.05, 5.1])
     plt.tight_layout(pad=0)
-    plt.savefig('figures/figure6.pdf')
+    namestr = 'figures/figure6.pdf'
+    plt.savefig(namestr)
+    print(f'Saved to {namestr}')
 
 def figure8a():
     def split_editnum_vs_stat(stat, most_edits=10):
@@ -338,7 +340,7 @@ def figure8a():
             y = [np.mean(b) for b in edit_bins]
             plt.plot(np.array(ran)+1, y, '-o', 
                       markeredgecolor='k')
-            plt.xlabel('R')
+            plt.xlabel('Time rank (R)')
             plt.ylabel(stat)
             if stat == 'iq':
                 plt.ylabel('IQ')
@@ -379,7 +381,7 @@ def figure8b():
         for edit_num in range(most_edits):
             y = [np.mean(b) for b in edit_bins[edit_num]]
             plt.plot(range(1, edit_num+2), y, 'o-')
-        plt.xlabel('R')
+        plt.xlabel('Time rank (R)')
         plt.ylabel(ptype)
         plt.xticks(range(1, most_edits+1))
     two_col()
@@ -387,7 +389,7 @@ def figure8b():
         plt.figure()
         editnum_vs_quality(ptype, most_edits=10)
         plt.tight_layout(pad=0)
-        namestr = f'{FIGPATH}/figure8-{count}.pdf'
+        namestr = f'{FIGPATH}/figure8-1-{count}.pdf'
         plt.savefig(namestr)
         print(f'Saved to {namestr}')
 

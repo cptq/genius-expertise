@@ -108,7 +108,7 @@ def utility_model(user_to_prop_times, user_to_utype):
         u = b - a1*x_ext**2 + a2*x_ext + c1*x_ext**2 - c2*x_ext
         
         
-        axs[count].set_xlabel('q')
+        axs[count].set_xlabel('Prop. time rank (q)')
         axs[count].set_xticks([0,.25,.5,.75,1])
         axs[count].set_ylim(.5,1.5)
         axs[count].set_yticks([.5, .75, 1, 1.25])

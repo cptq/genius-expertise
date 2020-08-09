@@ -106,7 +106,7 @@ def compute_ann_idx_to_score(song_to_lyrics, annotation_info):
                             to_dt_a(annotation_info[i]['time']).timestamp())
         idx_lst = song_to_annot_idx[s]
         content_lst = [BeautifulSoup(
-            annotation_info[i]['edits_lst'][-1]['content']).get_text()
+            annotation_info[i]['edits_lst'][-1]['content'], "lxml").get_text()
                       for i in idx_lst ]
         score_matrix = vectorizer.transform(content_lst)
                                             
