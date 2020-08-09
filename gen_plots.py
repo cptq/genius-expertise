@@ -474,8 +474,8 @@ def figure9a():
             plt.yticks([.08, .1, .12], ['.08', '.1', '.12'])
 
     song_to_lyrics, song_to_ann_lyrics = make_song_to_lyrics(annotation_info)
-    #song_to_score = compute_song_to_score(song_to_lyrics)
-    #ann_idx_to_score = compute_ann_idx_to_score(song_to_lyrics, annotation_info)
+    song_to_score = compute_song_to_score(song_to_lyrics)
+    ann_idx_to_score = compute_ann_idx_to_score(song_to_lyrics, annotation_info)
     two_col()
     for valtype in (1,4,5,7,8):
         fig, ax = plt.subplots(1)
@@ -638,7 +638,7 @@ if __name__ == '__main__':
         figure8a()
         figure8b()
     elif args.figure == 9:
-        #figure9a()
+        figure9a()
         figure9b()
     elif args.figure == 10:
         figure10()
