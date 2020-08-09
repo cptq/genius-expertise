@@ -393,84 +393,6 @@ def figure8b():
         plt.savefig(namestr)
         print(f'Saved to {namestr}')
 
-def figure9b():
-    def date_user_edit_evolution(min_user_edits=10, valtype=0, max_days=750):
-        ylab = {
-        0: 'First edits',
-        }
-        user_to_edits = collections.defaultdict(list)
-        user_to_iq = {u['url_name']:u['iq'] for u in user_info_gen()}
-        utypes = ['high iq', 'mid iq', 'low iq', 'all']
-        for i, a in enumerate(annotation_info):
-            if a['type'] == 'reviewed':
-                song_name = a['song']
-                u = a['edits_lst'][-1]['name'].split('/')[-1]
-                for time_rank, e in enumerate(list(reversed(a['edits_lst']))[1:]):
-                    true_time_rank = time_rank+2
-                    user_to_edits[u].append((i, true_time_rank))
-                    
-        # first edit datetimes
-        user_first_dt = {}
-        for u in user_to_edits:
-            user_to_edits[u].sort(key = lambda t:
-                                 to_dt_a(
-                                     annotation_info[t[0]]['edits_lst'][::-1][t[1]-1]['time']).timestamp()
-                                 )
-            first_idx, true_time_rank = user_to_edits[u][0]
-            user_first_dt[u] = to_dt_a(
-                list(reversed(annotation_info[first_idx]['edits_lst']))[true_time_rank-1]['time']
-                    )
-        
-        xs, ys = collections.defaultdict(list), collections.defaultdict(list)
-        for u in user_to_edits:
-            num_user_edits = len(user_to_edits[u])
-            if num_user_edits >= min_user_edits and u in user_to_iq:
-                iq = user_to_iq[u]
-                if iq > 1e5:
-                    utype = utypes[0]
-                elif iq > 1e4:
-                    utype = utypes[1]
-                else:
-                    utype = utypes[2]
-                for life_time_rank, (idx, true_time_rank) in enumerate(user_to_edits[u]):
-                    time_rank = true_time_rank-1
-                    a = annotation_info[idx]
-                    o_edits_lst = a['edits_lst'][::-1]
-                    elapsed = to_dt_a(o_edits_lst[time_rank]['time']) - user_first_dt[u]
-                    if elapsed.days > max_days:
-                        break
-                    
-                    if valtype==0:
-                        val = int(time_rank == 1)
-                    
-                    xs[utype].append(elapsed.days)
-                    ys[utype].append(val)
-                    xs['all'].append(elapsed.days)
-                    ys['all'].append(val)
-        for utype in utypes:
-            if utype == 'low iq':
-                continue
-            x, y = xs[utype], ys[utype]
-            x, y = make_cont_bins(x, y, num_bins=21)
-            yout = [[] for _ in range(len(y))]
-            for i in range(len(y)):
-                for j in range(i+1):
-                    yout[i].extend(y[j])
-                yout[i] = np.mean(yout[i])
-            # omits very first edit
-            plt.plot(x[1:], yout[1:], '-o')
-        plt.xlabel('User Age')
-        plt.ylabel(ylab[valtype])
-        plt.xticks([0,250,500,750])
-    valtype = 0
-    two_col()
-    fig, ax = plt.subplots(1)
-    ax.set_prop_cycle('color', CYCLE_COLORS)
-    date_user_edit_evolution(min_user_edits=10, valtype=valtype)
-    plt.tight_layout(pad=0)
-    namestr = f'{FIGPATH}/figure9-1-{valtype}.pdf'
-    plt.savefig(namestr)
-    print(f'Saved to {namestr}')
 
 def figure9a():
     def date_split_user_ann_evolution(ax, min_user_anns=10, valtype=0, max_days = 750):
@@ -548,10 +470,12 @@ def figure9a():
         plt.xlabel('User Age')
         plt.ylabel(ylab[valtype])
         plt.xticks([0,250,500,750])
+        if valtype == 1:
+            plt.yticks([.08, .1, .12], ['.08', '.1', '.12'])
 
     song_to_lyrics, song_to_ann_lyrics = make_song_to_lyrics(annotation_info)
-    song_to_score = compute_song_to_score(song_to_lyrics)
-    ann_idx_to_score = compute_ann_idx_to_score(song_to_lyrics, annotation_info)
+    #song_to_score = compute_song_to_score(song_to_lyrics)
+    #ann_idx_to_score = compute_ann_idx_to_score(song_to_lyrics, annotation_info)
     two_col()
     for valtype in (1,4,5,7,8):
         fig, ax = plt.subplots(1)
@@ -561,6 +485,87 @@ def figure9a():
         namestr = f'{FIGPATH}/figure9-0-{valtype}.pdf'
         plt.savefig(namestr)
         print(f'Saved to {namestr}')
+
+def figure9b():
+    def date_user_edit_evolution(min_user_edits=10, valtype=0, max_days=750):
+        ylab = {
+        0: 'First edits',
+        }
+        user_to_edits = collections.defaultdict(list)
+        user_to_iq = {u['url_name']:u['iq'] for u in user_info_gen()}
+        utypes = ['high iq', 'mid iq', 'low iq', 'all']
+        for i, a in enumerate(annotation_info):
+            if a['type'] == 'reviewed':
+                song_name = a['song']
+                u = a['edits_lst'][-1]['name'].split('/')[-1]
+                for time_rank, e in enumerate(list(reversed(a['edits_lst']))[1:]):
+                    true_time_rank = time_rank+2
+                    user_to_edits[u].append((i, true_time_rank))
+                    
+        # first edit datetimes
+        user_first_dt = {}
+        for u in user_to_edits:
+            user_to_edits[u].sort(key = lambda t:
+                                 to_dt_a(
+                                     annotation_info[t[0]]['edits_lst'][::-1][t[1]-1]['time']).timestamp()
+                                 )
+            first_idx, true_time_rank = user_to_edits[u][0]
+            user_first_dt[u] = to_dt_a(
+                list(reversed(annotation_info[first_idx]['edits_lst']))[true_time_rank-1]['time']
+                    )
+        
+        xs, ys = collections.defaultdict(list), collections.defaultdict(list)
+        for u in user_to_edits:
+            num_user_edits = len(user_to_edits[u])
+            if num_user_edits >= min_user_edits and u in user_to_iq:
+                iq = user_to_iq[u]
+                if iq > 1e5:
+                    utype = utypes[0]
+                elif iq > 1e4:
+                    utype = utypes[1]
+                else:
+                    utype = utypes[2]
+                for life_time_rank, (idx, true_time_rank) in enumerate(user_to_edits[u]):
+                    time_rank = true_time_rank-1
+                    a = annotation_info[idx]
+                    o_edits_lst = a['edits_lst'][::-1]
+                    elapsed = to_dt_a(o_edits_lst[time_rank]['time']) - user_first_dt[u]
+                    if elapsed.days > max_days:
+                        break
+                    
+                    if valtype==0:
+                        val = int(time_rank == 1)
+                    
+                    xs[utype].append(elapsed.days)
+                    ys[utype].append(val)
+                    xs['all'].append(elapsed.days)
+                    ys['all'].append(val)
+        for utype in utypes:
+            if utype == 'low iq':
+                continue
+            x, y = xs[utype], ys[utype]
+            x, y = make_cont_bins(x, y, num_bins=21)
+            yout = [[] for _ in range(len(y))]
+            for i in range(len(y)):
+                for j in range(i+1):
+                    yout[i].extend(y[j])
+                yout[i] = np.mean(yout[i])
+            # omits very first edit
+            plt.plot(x[1:], yout[1:], '-o')
+        plt.xlabel('User Age')
+        plt.ylabel(ylab[valtype])
+        plt.xticks([0,250,500,750])
+        plt.yticks([.30, .35], ['.30', '.35'])
+    valtype = 0
+    two_col()
+    fig, ax = plt.subplots(1)
+    ax.set_prop_cycle('color', CYCLE_COLORS)
+    date_user_edit_evolution(min_user_edits=10, valtype=valtype)
+    plt.tight_layout(pad=0)
+    namestr = f'{FIGPATH}/figure9-1-{valtype}.pdf'
+    plt.savefig(namestr)
+    print(f'Saved to {namestr}')
+
 
 def figure10():
     def rank_vs_stat(ax, stat):
@@ -633,7 +638,7 @@ if __name__ == '__main__':
         figure8a()
         figure8b()
     elif args.figure == 9:
-        figure9a()
+        #figure9a()
         figure9b()
     elif args.figure == 10:
         figure10()
