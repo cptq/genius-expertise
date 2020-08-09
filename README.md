@@ -15,8 +15,8 @@ We have provided code to recreate figures in the paper. The figures will be save
 
 ### Running the Code
 
-For the *utility model* results, run `python utility.py`.
+For the *utility model* results, run `python utility.py`. This generates Figure 7.
 
-For the *early prediction of expertise* results, run `python prediction.py`. This generates Figure 7.
+For the *early prediction of expertise* results, run `python prediction.py`.
 
 Code to compute the remaining figures can be found in `gen_plots.py`. For example, to recreate Figure 2, run `python gen_plots.py --figure 2`.
