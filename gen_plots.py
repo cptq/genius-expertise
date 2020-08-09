@@ -521,7 +521,7 @@ def figure9b():
                 iq = user_to_iq[u]
                 if iq > 1e5:
                     utype = utypes[0]
-                elif iq > 1e4:
+                elif 5e4 > iq > 1e4:
                     utype = utypes[1]
                 else:
                     utype = utypes[2]
@@ -638,7 +638,7 @@ if __name__ == '__main__':
         figure8a()
         figure8b()
     elif args.figure == 9:
-        figure9a()
+        #figure9a()
         figure9b()
     elif args.figure == 10:
         figure10()
